@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String    @id @default(uuid())
+  socialId    String    @unique
+  displayName String
+  email       String    
+  image       String
+  provider    String
+  messages    Message[]
+  games1      Game[]    @relation("PlayerOne")
+  games2      Game[]    @relation("PlayerTwo")
+  createdAt   DateTime  @default(now())
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Game {
+  id          String  @id @default(uuid())
+  timeControl String
+  ifFinished  Boolean @default(false)
+  playerOneId String
+  playerTwoId String?
+
+  playerOne   User         @relation("PlayerOne", fields: [playerOneId], references: [id])
+  playerTwo   User?        @relation("PlayerTwo", fields: [playerTwoId], references: [id])
+  createdAt   DateTime     @default(now())
+  gameDetails GameDetails?
+}
+
+model GameDetails {
+  id                      String    @id @default(uuid())
+  gameId                  String    @unique
+  whiteUserId             String
+  blackUserId             String
+  turn                    String    @default("white")
+  whiteLastMoveAt         DateTime?
+  blackLastMoveAt         DateTime?
+  timeLeftWhite           Int       @default(60)
+  timeLeftBlack           Int       @default(60)
+  game                    Game      @relation(fields: [gameId], references: [id])
+  timeForComeBack         Int       @default(15)
+  additionalTime          Int       @default(0)
+  moves                   Json?
+  lastMove                String?
+  currentPosition         Json
+  pointsWhite             Float?
+  pointsBlack             Float?
+  resultExplanation       String?
+  whiteUserDisconnectedAt DateTime?
+  blackUserDisconnectedAt DateTime?
+  drawProposed            String?
+  createdAt               DateTime  @default(now())
+}
