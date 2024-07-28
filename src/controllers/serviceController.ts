@@ -1,7 +1,6 @@
 import { GameDetails, Prisma } from "@prisma/client";
 import { Server } from "socket.io";
 import { PrismaClient } from "@prisma/client";
-import { json } from "stream/consumers";
 
 const prisma = new PrismaClient();
 

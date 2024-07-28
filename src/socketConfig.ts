@@ -1,7 +1,7 @@
 // socketConfig.ts
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { sessionMiddleware } from './middlewares/sessionMiddleware';
 import passport from 'passport';
 import connectionController  from './controllers/connectionController'; // Adjust the import based on your setup
@@ -25,12 +25,12 @@ export function configureSocketIO(server: HttpServer, userSocketMap : Map<string
     });
   
     function onlyForHandshake(
-      middleware: (req: Request, res: Response, next: any) => void
+      middleware: (req: Request, res: Response, next: NextFunction) => void
     ) {
       return (
         req: Request & { _query: Record<string, string> },
         res: Response,
-        next: (err?: Error) => void
+        next: NextFunction
       ) => {
         const isHandshake = req._query.sid === undefined;
         if (isHandshake) {
@@ -73,7 +73,7 @@ export function configureSocketIO(server: HttpServer, userSocketMap : Map<string
         connectionController.deleteDisconnect(req.user, io);
       }
   
-      socket.on("message", (message) => saveMessage(message, req.user, io, socketId));
+      socket.on("message", (message) => saveMessage(message, req.user, io));
       socket.on("joinToWatch", (gameId) => socket.join(gameId));
       socket.on("createGame", (timeControl) =>
         gameController.createGame(timeControl, req.user, io, socketId, userSocketMap)
@@ -110,8 +110,7 @@ export function configureSocketIO(server: HttpServer, userSocketMap : Map<string
   async function saveMessage(
     message: string,
     user: Express.User,
-    io: Server,
-    socketId: string
+    io: Server
   ) {
     // console.log(console.log(user, message));
     if (!user) return io.emit("error", { message: "Unauthorized" });

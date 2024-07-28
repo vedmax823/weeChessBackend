@@ -1,5 +1,5 @@
 import { Server } from "socket.io";
-import { GameDetails, PrismaClient, User } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { starterPosition } from "../data/starterposition";
 import serviceController from "./serviceController";
 import { startMove } from "../data/starterposition";
@@ -601,13 +601,6 @@ class GameController {
     );
     if (!timeLeftObj) return;
   }
-
-  public async disconnectUser(
-    data: { color: string; gameId: string },
-    user: Express.User,
-    io: Server,
-    socketId: string
-  ) {}
 
   private makeResult(turn: string, result: string): number[] {
     if (result === "mate") return turn === "white" ? [1, 0] : [0, 1];

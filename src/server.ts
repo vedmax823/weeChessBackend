@@ -10,7 +10,7 @@ import passport from "./auth/passportSetup";
 import router from "./routes/routs";
 dotenv.config();
 
-let userSocketMap = new Map<string, string>();
+const userSocketMap = new Map<string, string>();
 
 const port = process.env.PORT || 5001;
 
